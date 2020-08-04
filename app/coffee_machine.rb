@@ -11,8 +11,6 @@ class CoffeeMachine
   def initialize
     CoffeeMachine.load_config
     config = CoffeeMachine.config
-    set_inventory(config)
-    set_beverages(config)
     @inventory = config['machine']['total_items_quantity']
     @beverages = config['machine']['beverages']
     @outlets = config['machine']['outlets']['count_n']
@@ -21,35 +19,45 @@ class CoffeeMachine
 
   def serve(orders)
     threads = []
-    orders.each do |order|
+    orders.compact.each do |order|
       threads << Thread.new(order) do |t_order|
         @mutex.synchronize do
-          validate_and_update(t_order)
+          begin
+            serve_order(t_order)
+          rescue StandardError => e
+            puts e.message
+          end
         end
       end
     end
+    threads.each(&:join)
   end
-  threads.each { |x| x.join }
-end
 
-private
-
-def validate_and_update(t_order)
-  is_failed = false
-  temp_inventory = @inventory
-  errors = []
-  beverages[t_order].each do |item|
-    if temp_inventory[item] >= beverages[item]
-      temp_inventory[item] -= beverages[item]
-    elsif temp_inventory[item].nil?
-      is_failed = true
-      errors << "#{t_order} cannot be prepared because #{item} is not available"
-    else
-      is_failed = true
-      errors << "#{t_order} cannot be prepared because #{item} is not sufficient"
+  def refil(items = {})
+    items.each do |key, value|
+      @inventory[key] += value.to_f if value.to_f && @inventory[key]
     end
   end
-  raise errors.join(',') if is_failed
 
-  @inventory = temp_inventory
+  private
+
+  def serve_order(t_order)
+    temp_inventory = deep_copy(@inventory)
+    beverages[t_order].each do |key, value|
+      err_msg = "#{t_order} cannot be prepared because #{key}"
+      raise "#{err_msg} is not available" if temp_inventory[key].nil?
+      raise "#{err_msg} is not sufficient" if temp_inventory[key] < value
+      temp_inventory[key] -= value
+    end
+    @inventory = temp_inventory
+    puts "#{t_order} is prepared"
+  end
+
+  def deep_copy(old_object)
+    new_object = {}
+    old_object.each do |key, value|
+      new_object[key] = value
+    end
+    new_object
+  end
 end

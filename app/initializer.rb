@@ -7,7 +7,7 @@ module Initializer
 
   # load confing file
   def load_config
-    config_file =  File.open('config/machine.json')
+    config_file = File.open('config/machine.json')
     @config = JSON.load config_file
     config_file.close
     validate_config
@@ -25,11 +25,12 @@ module Initializer
     @config = value
   end
 
-  private 
+  private
 
   # validations for the json
   def validate_config
-    raise_error if @config['machine'].empty? || @config['machine']['outlets'].empty?
+    raise_error if @config['machine'].empty?
+    raise_error if @config['machine']['outlets'].empty?
     raise_error if @config['machine']['outlets']['count_n'].nil?
     raise_error if @config['machine']['total_items_quantity'].empty?
     raise_error if @config['machine']['beverages'].empty?
