@@ -1,4 +1,5 @@
 require 'json'
+require_relative 'exception'
 
 # Application initializer using config file
 # it loads json file from config/machine.json
@@ -12,17 +13,12 @@ module Initializer
     config_file.close
     validate_config
   rescue StandardError => e
-    raise "\n\n Error while reading config file:  #{e.message}"
+    raise InvalidParameter, "\n\n Error while reading config file:  #{e.message}"
   end
 
-  # getter for @machine variable
+  # getter for @config variable
   def config
     @config
-  end
-
-  # setter for @machine
-  def config=(value)
-    @config = value
   end
 
   private
@@ -37,6 +33,6 @@ module Initializer
   end
 
   def raise_error
-    raise 'correct machine config not avaible'
+    raise InvalidParameter, 'correct machine config not avaible'
   end
 end

@@ -1,4 +1,5 @@
 require_relative 'initializer'
+require_relative 'exception'
 require 'singleton'
 
 # klass for coffee machine
@@ -20,18 +21,20 @@ class CoffeeMachine
   def serve(orders = [])
     validate_order(orders)
     threads = []
+    outputs = []
     orders.compact.each do |order|
       threads << Thread.new(order) do |t_order|
         @mutex.synchronize do
           begin
-            serve_order(t_order)
+            outputs << serve_order(t_order)
           rescue StandardError => e
-            puts e.message
+            outputs <<  e.message
           end
         end
       end
     end
     threads.each(&:join)
+    outputs
   end
 
   def list_beverages
@@ -48,15 +51,15 @@ class CoffeeMachine
   private
 
   def validate_order(orders)
-    raise 'incorrect input provided, expects Array' if orders.class != Array
-    raise "machine serves #{@outlets} at a time" if orders.length > @outlets
+    raise InvalidParameter, 'incorrect input provided, expects Array' if orders.class != Array
+    raise InvalidParameter, "machine serves #{@outlets} at a time" if orders.length > @outlets
 
     invalid_o = orders.reject { |x| @beverages.key?(x) }
-    raise "machine does not serve #{invalid_o.join('')}" unless invalid_o.empty?
+    raise InvalidParameter, "machine does not serve #{invalid_o.join('')}" unless invalid_o.empty?
   end
 
   def validate_refill(items)
-    raise 'incorrect input provided, expects Hash' if items.class != Hash
+    raise InvalidParameter, 'incorrect input provided, expects Hash' if items.class != Hash
   end
 
   def serve_order(t_order)
@@ -69,7 +72,7 @@ class CoffeeMachine
       temp_inventory[key] -= value
     end
     @inventory = temp_inventory
-    puts "#{t_order} is prepared"
+    "#{t_order} is prepared"
   end
 
   def deep_copy(old_object)

@@ -6,7 +6,7 @@ loop do
     case action.to_i
     when 1
       orders = gets.chomp
-      CoffeeMachine.instance.serve(orders.split(','))
+      puts CoffeeMachine.instance.serve(orders.split(','))
     when 2
       puts CoffeeMachine.instance.list_beverages
     when 3
