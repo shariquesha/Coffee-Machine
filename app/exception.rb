@@ -1,1 +1,3 @@
-class InvalidParameter < StandardError; end
+module App
+  class InvalidParameter < StandardError; end
+end
