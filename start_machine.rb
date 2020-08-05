@@ -1,5 +1,5 @@
 require_relative 'app/coffee_machine'
-puts 'inputs', '1:serve 2:list_beverages 3:total_items_quantity 4:refill 5:exit'
+puts 'inputs', '1:serve 2:list_beverages 3:total_items_quantity 4:refill 5:indicator 6:exit'
 loop do
   begin
     action = gets.chomp
@@ -19,6 +19,8 @@ loop do
       end
       CoffeeMachine.instance.refill(enhancements)
     when 5
+      puts CoffeeMachine.instance.indicator
+    when 6
       break
     end
   rescue StandardError => e

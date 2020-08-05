@@ -10,8 +10,7 @@ class CoffeeMachine
   attr_reader :inventory, :beverages, :outlets
 
   def initialize
-    CoffeeMachine.load_config
-    config = CoffeeMachine.config
+    config = read_config_file
     @inventory = config['machine']['total_items_quantity']
     @beverages = config['machine']['beverages']
     @outlets = config['machine']['outlets']['count_n']
@@ -48,7 +47,23 @@ class CoffeeMachine
     end
   end
 
+  def indicator
+    config = read_config_file
+    total_items_quantity = config['machine']['total_items_quantity']
+    items_left_in_inventory = {}
+    @inventory.each do |key, value|
+      percentage = (value / total_items_quantity[key].to_f) * 100
+      items_left_in_inventory[key] = percentage.to_s + '%'
+    end
+    items_left_in_inventory
+  end
+
   private
+
+  def read_config_file
+    CoffeeMachine.load_config
+    CoffeeMachine.config
+  end
 
   def validate_order(orders)
     raise InvalidParameter, 'incorrect input provided, expects Array' if orders.class != Array
@@ -60,6 +75,9 @@ class CoffeeMachine
 
   def validate_refill(items)
     raise InvalidParameter, 'incorrect input provided, expects Hash' if items.class != Hash
+    items.each do |_key, value|
+      raise InvalidParameter, 'incorrect input provided, expects positive number' if value < 0
+    end
   end
 
   def serve_order(t_order)
