@@ -2,14 +2,16 @@ require 'json'
 require_relative 'exception'
 require_relative 'validator'
 
-# Application initializer using config file
-# it loads json file from config/machine.json
+# Application initializer using config file provided in args
+# if file not provided it loads json file from config/machine.json
 module App
   module Initializer
     include Validator
 
     class << self
       # load confing file
+      # @param String, file path
+      # @return Hash, file contents
       def load_config(file_path = nil)
         path = file_path || File.join(File.dirname(__dir__), 'config/machine.json')
         config_file = File.open(path)

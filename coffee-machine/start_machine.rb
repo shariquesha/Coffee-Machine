@@ -1,7 +1,12 @@
 require_relative 'app/coffee_machine'
 require_relative 'app/initializer'
 
-machine = App::CoffeeMachine.new(App::Initializer.load_config(ARGV[0]))
+# read file path & pass to Initializer to get config from file
+configs = App::Initializer.load_config(ARGV[0])
+
+# Instantiate coffee machine using config Hash
+machine = App::CoffeeMachine.new(configs)
+
 puts 'Coffee Machine Started'
 puts 'inputs:- 1:serve 2:list_beverages 3:total_items_quantity 4:refill 5:indicator 6:capacity 7:exit'
 ARGV.clear
@@ -11,6 +16,7 @@ loop do
     case action.to_i
     when 1
       orders = gets.chomp
+      # convert user input to expected method input
       puts machine.serve(orders.split(','))
     when 2
       puts machine.beverages
@@ -18,6 +24,7 @@ loop do
       puts machine.inventory
     when 4
       items = gets.chomp
+      # convert user input to expected method input
       enhancements = {}
       items.split(',').each do |x|
         enhancements[x.split('=')[0]] = x.split('=')[1]
