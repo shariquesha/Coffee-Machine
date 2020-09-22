@@ -1,13 +1,10 @@
-require_relative 'initializer'
+require_relative 'validator'
 require_relative 'exception'
 require 'singleton'
 
 module App
   # klass for coffee machine
   class CoffeeMachine
-    extend Initializer
-    include Validator
-
     attr_reader :inventory, :beverages, :outlets, :capacity
     
     # constructor
